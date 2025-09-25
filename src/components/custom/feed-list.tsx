@@ -12,9 +12,13 @@ import { Skeleton } from "@/components/ui/skeleton";
 export function FeedList({
   feed,
   isPending,
+  page,
+  pageLength,
 }: {
   feed: FeedEntry[] | null | undefined;
   isPending: boolean;
+  page: number;
+  pageLength: number;
 }) {
   if (isPending) {
     return (
@@ -49,7 +53,7 @@ export function FeedList({
 
   return (
     <>
-      {feed?.map((item) => {
+      {feed?.slice(page - 1, page + pageLength - 1).map((item) => {
         return (
           <Card key={item.id}>
             <CardHeader>

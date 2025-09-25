@@ -1,12 +1,26 @@
 "use client";
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { FeedList } from "@/components/custom/feed-list";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 import { getFeedAction } from "@/lib/actions";
+
+const PAGE_LENGTH = 4;
 
 export default function Page() {
   const [state, action, isPending] = useActionState(getFeedAction, null);
+  const [page, setPage] = useState(1);
+  const length = state?.feed?.length ?? 0;
+  const pages = Math.ceil(length / PAGE_LENGTH);
 
   return (
     <div className="max-w-6xl mx-auto flex flex-col gap-4 p-4 mt-6">
@@ -33,7 +47,41 @@ export default function Page() {
           {isPending ? "loading..." : "Get Feed"}
         </Button>
       </form>
-      <FeedList feed={state?.feed} isPending={isPending} />
+      <FeedList
+        feed={state?.feed}
+        isPending={isPending}
+        page={page}
+        pageLength={PAGE_LENGTH}
+      />
+      <Pagination>
+        <PaginationContent>
+          <PaginationItem>
+            <PaginationPrevious
+              className={page === 1 ? "pointer-events-none opacity-50" : ""}
+              onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+            />
+          </PaginationItem>
+          {new Array(pages).fill(null).map((_, i) => (
+            <PaginationItem
+              onClick={() => setPage(i + 1)}
+              // biome-ignore lint/suspicious/noArrayIndexKey: Low risk here as items do not change
+              key={i}
+            >
+              <PaginationLink isActive={page === i + 1}>{i + 1}</PaginationLink>
+            </PaginationItem>
+          ))}
+          <PaginationItem>
+            <PaginationEllipsis />
+          </PaginationItem>
+          <PaginationItem>
+            <PaginationNext
+              onClick={() => setPage((prev) => Math.min(pages, prev + 1))}
+              aria-disabled={page === pages}
+              className={page === pages ? "pointer-events-none opacity-50" : ""}
+            />
+          </PaginationItem>
+        </PaginationContent>
+      </Pagination>
     </div>
   );
 }
