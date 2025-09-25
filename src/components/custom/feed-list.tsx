@@ -3,22 +3,31 @@ import Link from "next/link";
 import {
   Card,
   CardAction,
+  CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 export function FeedList({
   feed,
   isPending,
   page,
   pageLength,
+  articles,
 }: {
   feed: FeedEntry[] | null | undefined;
   isPending: boolean;
   page: number;
   pageLength: number;
+  articles?: (string | null | undefined)[];
 }) {
   if (isPending) {
     return (
@@ -53,7 +62,7 @@ export function FeedList({
 
   return (
     <>
-      {feed?.slice(page - 1, page + pageLength - 1).map((item) => {
+      {feed?.slice(page - 1, page + pageLength - 1).map((item, i) => {
         return (
           <Card key={item.id}>
             <CardHeader>
@@ -70,6 +79,25 @@ export function FeedList({
                 </Link>
               </CardAction>
             </CardHeader>
+            <CardContent>
+              <Accordion type="single" collapsible>
+                <AccordionItem value="item-1">
+                  <AccordionTrigger>Article</AccordionTrigger>
+                  <AccordionContent>
+                    {articles ? (
+                      <div
+                        // biome-ignore lint/security/noDangerouslySetInnerHtml: html is sanitized using DOMPurify
+                        dangerouslySetInnerHTML={{
+                          __html: articles[i] as string,
+                        }}
+                      />
+                    ) : (
+                      ""
+                    )}
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
+            </CardContent>
           </Card>
         );
       })}

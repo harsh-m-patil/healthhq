@@ -1,8 +1,9 @@
 "use server";
 
+import type { FeedEntry } from "@extractus/feed-extractor";
 import z from "zod";
+import { getArticle } from "./article";
 import { getFeed } from "./feed";
-import { FeedEntry } from "@extractus/feed-extractor";
 
 const feedSchema = z.object({
   url: z.url(),
@@ -14,12 +15,12 @@ export interface ActionResponse {
   success: boolean;
   message: string;
   url?: string;
+  articles?: (string | null | undefined)[];
   errors?: {
     [K in keyof feedFormData]?: string[];
   };
   feed: FeedEntry[] | null | undefined;
 }
-
 
 export async function getFeedAction(
   prevState: ActionResponse | null,
@@ -42,11 +43,19 @@ export async function getFeedAction(
     }
 
     const feed = await getFeed(validatedData.data.url);
+    const results = feed?.map(async (entry) => {
+      // biome-ignore lint/style/noNonNullAssertion: We know it exists
+      const article = await getArticle({ url: entry.link! });
+      return article?.content;
+    });
+
+    const articles = results ? await Promise.all(results) : [];
 
     return {
       success: true,
       feed,
       message: "Feed URL is valid",
+      articles,
     };
   } catch (error) {
     console.error("Error in getFeedAction:", error);

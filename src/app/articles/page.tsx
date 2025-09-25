@@ -52,6 +52,7 @@ export default function Page() {
         isPending={isPending}
         page={page}
         pageLength={PAGE_LENGTH}
+        articles={state?.articles}
       />
       <Pagination>
         <PaginationContent>
