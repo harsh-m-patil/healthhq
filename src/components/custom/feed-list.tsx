@@ -1,11 +1,13 @@
 import type { FeedEntry } from "@extractus/feed-extractor";
 import Link from "next/link";
+import { Streamdown } from "streamdown";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardAction,
@@ -15,7 +17,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Streamdown } from "streamdown";
 
 export function FeedList({
   feed,
@@ -70,37 +71,42 @@ export function FeedList({
         return (
           <Card key={item.id}>
             <CardHeader>
-              <CardTitle>{item.title}</CardTitle>
-              <CardDescription>{item.description}</CardDescription>
+              <CardTitle className="text-lg">{item.title}</CardTitle>
+              <CardDescription className="pr-10">
+                {item.description}
+              </CardDescription>
               <CardAction>
-                <Link
-                  href={item.link ?? "#"}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="underline text-sm text-primary"
-                >
-                  Article
-                </Link>
+                <div className="flex flex-col justify-end gap-4 items-end">
+                  <Button variant="outline">
+                    <Link
+                      // biome-ignore lint/style/noNonNullAssertion: we know this exists
+                      href={item.link!}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Read Original
+                    </Link>
+                  </Button>
+                  <Button variant="secondary">
+                    <Link
+                      href={{
+                        pathname: "/articles/ai",
+                        query: { url: item.link },
+                      }}
+                    >
+                      Read AI Rewrite
+                    </Link>
+                  </Button>
+                </div>
               </CardAction>
             </CardHeader>
             <CardContent>
-              <Accordion type="multiple">
+              <Accordion
+                type="single"
+                collapsible
+                className="outline px-4 rounded-md"
+              >
                 <AccordionItem value="item-1">
-                  <AccordionTrigger>Article</AccordionTrigger>
-                  <AccordionContent>
-                    {results ? (
-                      <div
-                        // biome-ignore lint/security/noDangerouslySetInnerHtml: html is sanitized using DOMPurify
-                        dangerouslySetInnerHTML={{
-                          __html: results[i].article as string,
-                        }}
-                      />
-                    ) : (
-                      ""
-                    )}
-                  </AccordionContent>
-                </AccordionItem>
-                <AccordionItem value="item-2">
                   <AccordionTrigger>Summary</AccordionTrigger>
                   <AccordionContent>
                     {results ? (

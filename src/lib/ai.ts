@@ -33,3 +33,22 @@ export async function aiSummary(options: { content: string }) {
 
   return aiHelper({ prompt, system: systemPrompt });
 }
+
+export async function aiRewrite(options: { content: string }) {
+  const systemPrompt = ` You are a helper assistant that rewrites complex medical field
+  related articles and rewrites them in simple language so that normal folks can understand
+  it.
+
+  Try to explain in detail.
+  Use markdown to properly format the rewrite and to make sure it is easy to understand.
+  Use markdown heading tags to clearly define the text heirarchy.
+  `;
+
+  const prompt = `
+    <article>
+    ${options.content}
+    </article>
+  `;
+
+  return aiHelper({ prompt, system: systemPrompt });
+}

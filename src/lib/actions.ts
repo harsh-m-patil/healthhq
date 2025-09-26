@@ -57,7 +57,6 @@ export async function getFeedAction(
       if (cachedSummary) {
         return { article: article?.content, summary: cachedSummary };
       } else {
-        console.log("No cached summary, generating new one...");
         summary = article?.content
           ? await aiSummary({ content: article.content })
           : `**Fallback**:  

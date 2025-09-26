@@ -2,6 +2,7 @@ import { Readability } from "@mozilla/readability";
 import { Redis } from "@upstash/redis";
 import DOMPurify from "dompurify";
 import { parseHTML } from "linkedom";
+import type { Article } from "./types";
 
 export const redis = Redis.fromEnv();
 
@@ -48,6 +49,7 @@ export async function getArticle(options: { url: string }) {
     await redis.set(key, JSON.stringify(article), { ex: 60 * 60 * 24 });
     return article;
   } catch (error) {
+    console.error("Error fetching article:", (error as Error).message);
     return null;
   }
 }

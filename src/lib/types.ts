@@ -1,4 +1,4 @@
-type Article =
+export type Article =
   | {
     title: string | null | undefined;
     content: string | null | undefined;
