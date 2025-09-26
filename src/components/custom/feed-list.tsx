@@ -60,7 +60,7 @@ export function FeedList({
 
   if (!feed || feed.length === 0) {
     return (
-      <div className="max-w-6xl mx-auto flex flex-col gap-4 p-4 mt-12">
+      <div className="max-w-6xl mx-auto flex items-center justify-center p-4 min-h-[400px]">
         <p className="text-center text-lg">No feed available</p>
       </div>
     );

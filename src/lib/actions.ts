@@ -10,7 +10,7 @@ const feedSchema = z.object({
   url: z.url(),
 });
 
-type feedFormData = z.infer<typeof feedSchema>;
+type FeedFormData = z.infer<typeof feedSchema>;
 
 export interface ActionResponse {
   success: boolean;
@@ -21,7 +21,7 @@ export interface ActionResponse {
     summary: string | null | undefined;
   }[];
   errors?: {
-    [K in keyof feedFormData]?: string[];
+    [K in keyof FeedFormData]?: string[];
   };
   feed: FeedEntry[] | null | undefined;
 }
@@ -31,7 +31,7 @@ export async function getFeedAction(
   formData: FormData,
 ): Promise<ActionResponse> {
   try {
-    const rawData: feedFormData = {
+    const rawData: FeedFormData = {
       url: formData.get("url") as string,
     };
 
@@ -47,39 +47,58 @@ export async function getFeedAction(
     }
 
     const feed = await getFeed(validatedData.data.url);
-    const results = feed?.map(async (entry, i) => {
-      const _ = i; // NOTE: can be used for reducing ai calls if needed
-      // biome-ignore lint/style/noNonNullAssertion: We know it exists
-      const article = await getArticle({ url: entry.link! });
-      let summary: string;
 
-      const cacheKey = `${entry.link}:summary`;
-      const cachedSummary: string | null = await redis.get(cacheKey);
-      if (cachedSummary) {
-        return { article: article?.content, summary: cachedSummary };
-      } else {
-        summary = article?.content
-          ? await aiSummary({ content: article.content })
-          : `**Fallback**:  
-          ${article?.excerpt}`;
+    if (!feed || feed.length === 0) {
+      return {
+        success: true,
+        feed: [],
+        results: [],
+        message: "No entries found in feed",
+      };
+    }
 
-        if (summary === "") {
-          summary = `**Fallback**:  
-          ${article?.excerpt}`;
+    const results = await Promise.all(
+      feed.map(async (entry) => {
+        if (!entry.link) return { article: null, summary: null };
+
+        try {
+          const cacheKey = `${entry.link}:summary`;
+          const cachedSummary: string | null = await redis.get(cacheKey);
+
+          if (cachedSummary) {
+            return { article: null, summary: cachedSummary };
+          }
+
+          const article = await getArticle({ url: entry.link });
+
+          let summary: string | null = null;
+          if (article?.content) {
+            summary = await aiSummary({ content: article.content });
+          }
+
+          if (!summary || summary.trim() === "") {
+            summary = `**Fallback**:\n${article?.excerpt ?? "No excerpt available"}`;
+          }
+
+          // cache asynchronously, no need to block response
+          void redis.set(cacheKey, summary, { ex: 60 * 60 * 24 });
+
+          return { article: article?.content, summary };
+        } catch (err) {
+          console.error(`Error processing entry: ${entry.link}`, err);
+          return {
+            article: null,
+            summary: "**Error summarizing this article**",
+          };
         }
-
-        redis.set(cacheKey, summary, { ex: 60 * 60 * 24 });
-      }
-      return { article: article?.content, summary };
-    });
-
-    const finalResults = results ? await Promise.all(results) : [];
+      }),
+    );
 
     return {
       success: true,
       feed,
-      message: "Feed URL is valid",
-      results: finalResults,
+      message: "Feed processed successfully",
+      results,
     };
   } catch (error) {
     console.error("Error in getFeedAction:", error);

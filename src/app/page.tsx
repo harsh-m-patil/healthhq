@@ -1,4 +1,5 @@
 "use client";
+import { Rss } from "lucide-react";
 import { useActionState, useState } from "react";
 import { FeedList } from "@/components/custom/feed-list";
 import { Button } from "@/components/ui/button";
@@ -13,7 +14,6 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { getFeedAction } from "@/lib/actions";
-import { Rss } from "lucide-react";
 
 const PAGE_LENGTH = 4;
 
@@ -46,7 +46,8 @@ export default function Page() {
         </div>
         <Button
           className="flex items-center gap-2"
-          type="submit" disabled={isPending}
+          type="submit"
+          disabled={isPending}
         >
           {isPending ? "loading..." : "Get Feed"}
           <Rss className="size-4" />
@@ -63,7 +64,12 @@ export default function Page() {
         <PaginationContent>
           <PaginationItem>
             <PaginationPrevious
-              className={page === 1 ? "pointer-events-none opacity-50" : ""}
+              aria-disabled={page === 1 || pages === 0}
+              className={
+                page === 1 || pages === 0
+                  ? "pointer-events-none opacity-50"
+                  : ""
+              }
               onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
             />
           </PaginationItem>
@@ -82,8 +88,12 @@ export default function Page() {
           <PaginationItem>
             <PaginationNext
               onClick={() => setPage((prev) => Math.min(pages, prev + 1))}
-              aria-disabled={page === pages}
-              className={page === pages ? "pointer-events-none opacity-50" : ""}
+              aria-disabled={page === pages || pages === 0}
+              className={
+                page === pages || pages === 0
+                  ? "pointer-events-none opacity-50"
+                  : ""
+              }
             />
           </PaginationItem>
         </PaginationContent>

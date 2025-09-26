@@ -18,7 +18,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${lora.className} antialiased`}>
+      <body
+        className={`${lora.className} antialiased bg-gradient-to-tl min-h-screen from-primary/10 via-background/85 to-primary/10`}
+      >
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
