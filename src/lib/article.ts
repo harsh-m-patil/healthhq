@@ -1,9 +1,19 @@
 import { Readability } from "@mozilla/readability";
-import { parseHTML } from "linkedom";
+import { Redis } from "@upstash/redis";
 import DOMPurify from "dompurify";
+import { parseHTML } from "linkedom";
+
+export const redis = Redis.fromEnv();
 
 export async function getArticle(options: { url: string }) {
   try {
+    const key = `${options.url}:article`;
+    const result: Article = await redis.get(key);
+
+    if (result) {
+      return result;
+    }
+
     const response = await fetch(options.url, {
       next: { revalidate: 60 * 60 * 24 },
     })
@@ -35,7 +45,7 @@ export async function getArticle(options: { url: string }) {
       article.content = cleanArticle;
     }
 
-
+    await redis.set(key, JSON.stringify(article), { ex: 60 * 60 * 24 });
     return article;
   } catch (error) {
     return null;

@@ -3,7 +3,7 @@
 import type { FeedEntry } from "@extractus/feed-extractor";
 import z from "zod";
 import { aiSummary } from "./ai";
-import { getArticle } from "./article";
+import { getArticle, redis } from "./article";
 import { getFeed } from "./feed";
 
 const feedSchema = z.object({
@@ -50,10 +50,20 @@ export async function getFeedAction(
     const results = feed?.map(async (entry) => {
       // biome-ignore lint/style/noNonNullAssertion: We know it exists
       const article = await getArticle({ url: entry.link! });
-      const summary = article?.content
-        ? await aiSummary({ content: article.content })
-        : `**Fallback**:  
+      let summary: string;
+
+      const cacheKey = `${entry.link}:summary`;
+      const cachedSummary: string | null = await redis.get(cacheKey);
+      if (cachedSummary) {
+        return { article: article?.content, summary: cachedSummary };
+      } else {
+        console.log("No cached summary, generating new one...");
+        summary = article?.content
+          ? await aiSummary({ content: article.content })
+          : `**Fallback**:  
           ${article?.excerpt}`;
+        redis.set(cacheKey, summary, { ex: 60 * 60 * 24 });
+      }
       return { article: article?.content, summary };
     });
 
