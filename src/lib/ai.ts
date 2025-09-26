@@ -15,7 +15,7 @@ export async function aiHelper(options: { prompt: string; system: string }) {
     return response.text;
   } catch (error) {
     console.error("Error generating content:", error);
-    return "Error generating content.";
+    return "";
   }
 }
 

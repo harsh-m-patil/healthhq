@@ -47,7 +47,8 @@ export async function getFeedAction(
     }
 
     const feed = await getFeed(validatedData.data.url);
-    const results = feed?.map(async (entry) => {
+    const results = feed?.map(async (entry, i) => {
+      const _ = i; // NOTE: can be used for reducing ai calls if needed
       // biome-ignore lint/style/noNonNullAssertion: We know it exists
       const article = await getArticle({ url: entry.link! });
       let summary: string;
@@ -61,6 +62,12 @@ export async function getFeedAction(
           ? await aiSummary({ content: article.content })
           : `**Fallback**:  
           ${article?.excerpt}`;
+
+        if (summary === "") {
+          summary = `**Fallback**:  
+          ${article?.excerpt}`;
+        }
+
         redis.set(cacheKey, summary, { ex: 60 * 60 * 24 });
       }
       return { article: article?.content, summary };
