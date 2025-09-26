@@ -13,6 +13,7 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { getFeedAction } from "@/lib/actions";
+import { Rss } from "lucide-react";
 
 const PAGE_LENGTH = 4;
 
@@ -43,8 +44,12 @@ export default function Page() {
             <p className="text-red-500">{state.errors.url[0]}</p>
           )}
         </div>
-        <Button type="submit" disabled={isPending}>
+        <Button
+          className="flex items-center gap-2"
+          type="submit" disabled={isPending}
+        >
           {isPending ? "loading..." : "Get Feed"}
+          <Rss className="size-4" />
         </Button>
       </form>
       <FeedList

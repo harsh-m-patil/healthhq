@@ -17,7 +17,7 @@ export async function getArticle(options: { url: string }) {
 
     const response = await fetch(options.url, {
       next: { revalidate: 60 * 60 * 24 },
-    })
+    });
 
     const html = await response.text();
     const { document } = parseHTML(html);
@@ -49,7 +49,7 @@ export async function getArticle(options: { url: string }) {
     await redis.set(key, JSON.stringify(article), { ex: 60 * 60 * 24 });
     return article;
   } catch (error) {
-    console.error("Error fetching article:", (error as Error).message);
+    console.error("Error fetching article");
     return null;
   }
 }

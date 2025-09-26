@@ -5,7 +5,7 @@ export async function getFeed(url: string) {
     const data = await extract(url);
     return data.entries;
   } catch (error) {
-    console.error("Error fetching feed:", error);
+    console.error("Error fetching feed");
     return null;
   }
 }

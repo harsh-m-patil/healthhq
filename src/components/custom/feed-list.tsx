@@ -1,4 +1,5 @@
 import type { FeedEntry } from "@extractus/feed-extractor";
+import { WandSparkles } from "lucide-react";
 import Link from "next/link";
 import { Streamdown } from "streamdown";
 import {
@@ -83,8 +84,10 @@ export function FeedList({
                       href={item.link!}
                       target="_blank"
                       rel="noopener noreferrer"
+                      className="flex items-center gap-2"
                     >
                       Read Original
+                      {/* <ExternalLink className="size-4" /> */}
                     </Link>
                   </Button>
                   <Button variant="secondary">
@@ -93,8 +96,10 @@ export function FeedList({
                         pathname: "/articles/ai",
                         query: { url: item.link },
                       }}
+                      className="flex items-center gap-2 group"
                     >
                       Read AI Rewrite
+                      <WandSparkles className="size-4 group-hover:-rotate-12 group-hover:scale-110 duration-300 transition-transform group-hover:text-white group-hover:shadow-2xl" />
                     </Link>
                   </Button>
                 </div>
