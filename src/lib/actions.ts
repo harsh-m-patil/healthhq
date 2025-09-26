@@ -2,6 +2,7 @@
 
 import type { FeedEntry } from "@extractus/feed-extractor";
 import z from "zod";
+import { aiSummary } from "./ai";
 import { getArticle } from "./article";
 import { getFeed } from "./feed";
 
@@ -15,7 +16,10 @@ export interface ActionResponse {
   success: boolean;
   message: string;
   url?: string;
-  articles?: (string | null | undefined)[];
+  results?: {
+    article: string | null | undefined;
+    summary: string | null | undefined;
+  }[];
   errors?: {
     [K in keyof feedFormData]?: string[];
   };
@@ -46,16 +50,20 @@ export async function getFeedAction(
     const results = feed?.map(async (entry) => {
       // biome-ignore lint/style/noNonNullAssertion: We know it exists
       const article = await getArticle({ url: entry.link! });
-      return article?.content;
+      const summary = article?.content
+        ? await aiSummary({ content: article.content })
+        : `**Fallback**:  
+          ${article?.excerpt}`;
+      return { article: article?.content, summary };
     });
 
-    const articles = results ? await Promise.all(results) : [];
+    const finalResults = results ? await Promise.all(results) : [];
 
     return {
       success: true,
       feed,
       message: "Feed URL is valid",
-      articles,
+      results: finalResults,
     };
   } catch (error) {
     console.error("Error in getFeedAction:", error);

@@ -1,6 +1,12 @@
 import type { FeedEntry } from "@extractus/feed-extractor";
 import Link from "next/link";
 import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import {
   Card,
   CardAction,
   CardContent,
@@ -9,25 +15,23 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
+import { Streamdown } from "streamdown";
 
 export function FeedList({
   feed,
   isPending,
   page,
   pageLength,
-  articles,
+  results,
 }: {
   feed: FeedEntry[] | null | undefined;
   isPending: boolean;
   page: number;
   pageLength: number;
-  articles?: (string | null | undefined)[];
+  results?: {
+    article: string | null | undefined;
+    summary: string | null | undefined;
+  }[];
 }) {
   if (isPending) {
     return (
@@ -80,17 +84,27 @@ export function FeedList({
               </CardAction>
             </CardHeader>
             <CardContent>
-              <Accordion type="single" collapsible>
+              <Accordion type="multiple">
                 <AccordionItem value="item-1">
                   <AccordionTrigger>Article</AccordionTrigger>
                   <AccordionContent>
-                    {articles ? (
+                    {results ? (
                       <div
                         // biome-ignore lint/security/noDangerouslySetInnerHtml: html is sanitized using DOMPurify
                         dangerouslySetInnerHTML={{
-                          __html: articles[i] as string,
+                          __html: results[i].article as string,
                         }}
                       />
+                    ) : (
+                      ""
+                    )}
+                  </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value="item-2">
+                  <AccordionTrigger>Summary</AccordionTrigger>
+                  <AccordionContent>
+                    {results ? (
+                      <Streamdown>{results[i].summary}</Streamdown>
                     ) : (
                       ""
                     )}
