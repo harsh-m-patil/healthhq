@@ -19,8 +19,8 @@ export const metadata: Metadata = {
         url: "https://healthhq.vercel.app/og.png",
         alt: "HealthHQ",
       },
-    ]
-  }
+    ],
+  },
 };
 
 export default function RootLayout({

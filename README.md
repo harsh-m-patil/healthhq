@@ -15,8 +15,24 @@ are cached in Upstash Redis.
 - Redis caching (24h) for article + summary
 - Dark / light theme toggle
 
+## Architecture Notes
+- Summaries cached per article link with `<url>:summary`
+- Articles cached as `<url>:article`
+- Summaries generated lazily; cache writes are fire-and-forget (`void`)
+- Validation with `zod`; server actions return structured objects
+
+![Architecture diagram](./assets/architechture.png) 
+
 ## Getting Started
 
+First, ensure you have [Node.js](https://nodejs.org/en/download/) installed (v18+ recommended).
+
+Then, clone the repository:
+
+```bash
+git clone https://github.com/harsh-m-patil/healthhq.git
+cd healthhq
+```
 Install dependencies (PNPM preferred):
 
 ```bash
@@ -52,11 +68,6 @@ Set (e.g. in `.env.local`):
 - `UPSTASH_REDIS_REST_URL`
 - `UPSTASH_REDIS_REST_TOKEN`
 
-## Architecture Notes
-- Summaries cached per article link with `<url>:summary`
-- Articles cached as `<url>:article`
-- Summaries generated lazily; cache writes are fire-and-forget (`void`)
-- Validation with `zod`; server actions return structured objects
 
 ## Learn More
 
