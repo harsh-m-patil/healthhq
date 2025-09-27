@@ -1,3 +1,5 @@
+![App Thumbnail](./assets/healthhq.png) 
+
 # HealthHQ
 
 HealthHQ is a Next.js (App Router) app that ingests RSS/Atom feeds, fetches

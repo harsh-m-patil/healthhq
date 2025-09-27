@@ -9,6 +9,18 @@ const lora = Lora();
 export const metadata: Metadata = {
   title: "HealthHQ",
   description: "Your Gateway to Simplified Medical News",
+  openGraph: {
+    title: "HealthHQ",
+    description: "Your Gateway to Simplified Medical News",
+    url: "https://healthhq.vercel.app",
+    siteName: "HealthHQ",
+    images: [
+      {
+        url: "https://healthhq.vercel.app/og.png",
+        alt: "HealthHQ",
+      },
+    ]
+  }
 };
 
 export default function RootLayout({
