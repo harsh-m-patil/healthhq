@@ -19,7 +19,7 @@ export async function AiArticle({
     rewrite = cachedArticle;
   } else {
     rewrite = await aiRewrite({ content });
-    redis.set(`${url}:ai-article`, rewrite, { ex: 60 * 60 * 24 });
+    redis.set(`${url}:ai-article`, rewrite, { ex: Infinity });
   }
   return <Streamdown>{rewrite}</Streamdown>;
 }

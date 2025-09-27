@@ -81,7 +81,7 @@ export async function getFeedAction(
           }
 
           // cache asynchronously, no need to block response
-          void redis.set(cacheKey, summary, { ex: 60 * 60 * 24 });
+          void redis.set(cacheKey, summary, { ex: Infinity });
 
           return { article: article?.content, summary };
         } catch (err) {
